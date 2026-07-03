@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keys & Tokens — NEVER commit secrets
+*.env
+.env
+.env.local
+.env.*.local
+api_key*
+api_key
+*key*
+*token*
+*secret*
+credentials.json
+*.pem
+*.key
+
+# Camoufox / Playwright browser data
+.camoufox/
+.playwright/
+browser_profiles/
+
+# Node (if any npm tools are used)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+logs/
+
+# Notion / Obsidian local data (user-specific)
+*.md.bak
+*.md.save
+*.obsidian*
+**/.obsidian/
+
+# Temp files
+tmp/
+temp/
+*.tmp
+*.cache
+
+# Zips from export
+*.zip
+
+# Jupyter
+.ipynb_checkpoints/
