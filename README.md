@@ -9,7 +9,7 @@
  <a href="#-what-it-does">What It Does</a> ·
  <a href="#-supported-platforms">Supported Platforms</a> ·
  <a href="#-quick-start">Quick Start</a> ·
- <a href="../README.md">中文</a>
+ <a href="../README_cn.md">中文</a>
 </p>
 
 
