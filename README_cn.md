@@ -1,16 +1,17 @@
 # 👁️ Agent-Social-Reader
 
 <p align="center">
-  <strong>丢个社媒链接 → Agent自动总结 → 一键存进知识库 · 免登录、免 Cookie，账号更安心<br/>
-  支持读取 X、YouTube、Reddit、抖音、小红书、微信公众号等社交内容，并一键归档到 Notion / Obsidian</strong>
+  <strong>丢个社媒链接  →  Agent自动总结  →  一键存进知识库<br/>免登录 · 免 Cookie · 账号更安心<br/><br/>
+  支持读取 X、Instagram、YouTube、抖音、小红书、微信公众号等社交内容，并一键归档到 Notion / Obsidian</strong>
 </p>
 <p align="center">
   <a href="#-快速理解">快速理解</a> · 
   <a href="#-功能列表">功能列表</a> · 
   <a href="#-支持平台">支持平台</a> · 
   <a href="#-快速上手">快速开始</a> · 
-  <a href="docs/README_en.md">English</a>
+  <a href="README.md">English</a>
 </p>
+
 
 
 
@@ -105,7 +106,7 @@ Agent：自动读取 → 自动总结
 复制下面这句话，直接发给你正在使用的 AI Agent（Claude Code、Cursor、Codex、OpenClaw、Windsurf 等均可）：
 
 ```
-帮我安装 Agent-Social-Reader 技能包：https://raw.githubusercontent.com/inkad/agent-social-reader/main/SKILL.md
+帮我安装 Agent-Social-Reader 技能包：https://github.com/hermiod99-vibe/Agent-Social-Reader
 ```
 
 就这一步。Agent 会自己完成剩下的所有事情。

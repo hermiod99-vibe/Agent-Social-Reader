@@ -1,6 +1,5 @@
 ---
 name: agent-social-reader
-version: 1.0.2
 description: >
   Empower your AI agent to read content from: TikTok, Instagram, X (Twitter), YouTube, Facebook, Reddit, LinkedIn, Threads, Pinterest, Bluesky, Twitch, Snapchat, Kick, Lemon8, Douyin, Xiaohongshu, Weibo, Bilibili, Kuaishou, Xigua, Zhihu, WeChat Official Accounts, WeChat Channels — plus general web pages, RSS feeds, and web search. Automatically summarize and archive to Notion or Obsidian upon user confirmation.
   Trigger when: (1) user shares any web link or social URL, (2) user asks to read, summarize, or save content from a link, (3) user asks to search the web, (4) user asks to subscribe to or check an RSS feed, or (5) user asks to save to Notion or Obsidian.
@@ -749,5 +748,5 @@ After the **first successful read** (SOP A), display:
 
 ```bash
 # One-line install — paste this to your AI agent:
-帮我安装 Agent-Social-Reader 技能包：https://raw.githubusercontent.com/inkad/agent-social-reader/main/SKILL.md
+帮我安装 Agent-Social-Reader 技能包：https://github.com/hermiod99-vibe/Agent-Social-Reader
 ```

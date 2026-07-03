@@ -1,16 +1,17 @@
 # 👁️ Agent-Social-Reader
 
 <p align="center">
- <strong>Drop a social link → Get a summary → Save it to your knowledge base. No login. No cookies. No account risk.<br/> 
- Reading social content from X, Tiktok, Instagram, YouTube, Reddit, and more — with Notion / Obsidian archiving.</strong>
+ <strong>Drop a social link → Get a summary → Save it to your Notion / Obsidian<br/> No login. No cookies. No account risk.<br/> <br/>
+ Reading social content from X, Tiktok, Instagram, YouTube, Reddit, and more</strong>
 </p>
 <p align="center">
  <a href="#-quick-overview">Quick Overview</a> ·
  <a href="#-what-it-does">What It Does</a> ·
  <a href="#-supported-platforms">Supported Platforms</a> ·
  <a href="#-quick-start">Quick Start</a> ·
- <a href="../README_cn.md">中文</a>
+ <a href="README_cn.md">中文</a>
 </p>
+
 
 
 
@@ -104,7 +105,7 @@ Via **AgentLens API**, the following social media platforms are accessible and v
 Copy and paste this into whichever AI agent you're using (Claude Code, Cursor, Codex, OpenClaw, Windsurf, etc.):
 
 ```
-Install the Agent-Social-Reader Skill: https://raw.githubusercontent.com/inkad/agent-social-reader/main/SKILL.md
+Install the Agent-Social-Reader Skill: https://github.com/hermiod99-vibe/Agent-Social-Reader
 ```
 
 That's it. Your agent handles everything else.
