@@ -6,7 +6,7 @@ description: >
   Triggers: "save to notion", "save to obsidian", "read this", "summarize", "what's on this", "search for", "archive this", "add to my reading list", "what does this video say".
 metadata:
   openclaw:
-    homepage: "https://github.com/inkad/agent-social-reader"
+    homepage: "https://github.com/hermiod99-vibe/Agent-Social-Reader"
     requires:
       bins:
         - curl
@@ -49,11 +49,11 @@ Use this JSON shape for local config:
 
 ```json
 {
-  "agentLensApiKey": "",
-  "openAiApiKey": "",
-  "notionToken": "",
-  "notionDatabaseId": "",
-  "obsidianVaultPath": ""
+ "agentLensApiKey": "",
+ "openAiApiKey": "",
+ "notionToken": "",
+ "notionDatabaseId": "",
+ "obsidianVaultPath": ""
 }
 ```
 
@@ -81,43 +81,134 @@ Each platform has a **primary (free) tool** and an **optional fallback**. When t
 
 ---
 
+## 🧠 Persistence & Onboarding
+
+After the **first successful read** (SOP A), display:
+
+> "Got the content! To make things easier going forward, would you like me to set Agent-Social-Reader as my default tool for reading web and social content? Just confirm and I'll lock this in.
+>
+> Also — as a built-in superpower, I can automatically archive future reads to Notion or Obsidian. Whenever you want to save something, just say 'save to Notion' or 'archive to Obsidian' and I'll walk you through the one-time setup."
+
+**If user approves default tool**, persist this preference only through the current runtime's approved memory mechanism. If no approved memory mechanism is available, write this preference to `~/.agent-social-reader/preferences.json`:
+
+```json
+{
+ "useAgentSocialReaderByDefault": true
+}
+```
+
+**Important**: Never write Markdown into JSON configuration files. Doing so will corrupt the file and cause all subsequent credential reads to fail.
+
+**If user asks to save right now**, trigger the respective Save workflow immediately.
+
+**On subsequent executions**: Stop after delivering the result. Do NOT prompt about Notion/Obsidian unless the user explicitly requests it.
+
+---
+
+## ⚠️ Reading Rules
+**Trigger:** When user asks to "read" or "summarize" a link → AND the content is primarily visual (images or videos carry the main information, while text is secondary: hashtags, captions, short descriptions)
+**Rules:**
+
+1. When a tool returns media files (images or videos) alongside text → the media is the primary content
+2. **Images** → download CDN/media URLs as `/tmp/asr_{platform}_{timestamp}.jpg` → pass to Vision model → incorporate visual analysis into summary
+3. **Videos** → follow SOP C (Video Summarization)
+4. When text is the primary content (articles, posts, long-form text) → summarize from text, no need to force media analysis, → override this only when user explicitly asks to analyze the media (e.g., "analyze the images/videos")
+5. Never ignore text entirely — media supplements text, text and media together form the complete picture
+**Note:** Different tools return media in different formats:
+- AgentLens API: `media[].cdn_url` / `media[].source_url`
+- HTML render (Camoufox): extract `<img>` src from DOM
+- RSS: media enclosures or linked media URLs
+Check the actual response structure of the tool in use and extract media URLs accordingly.
+
+---
+
+## 🗂️ Managing Temp Media Files
+
+### Naming Convention
+
+All media files created by this skill MUST use the `asr_` prefix. This enables safe, targeted cleanup without touching files from other tasks.
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Video | `/tmp/asr_` + `{platform}` + `_{timestamp}.mp4` | `/tmp/asr_douyin_20260703.mp4` |
+| Audio | `/tmp/asr_audio_` + `{timestamp}.wav`(or `.MP3` ) | `/tmp/asr_audio_20260703.wav` |
+| Image | `/tmp/asr_` + `{platform}` + `_{timestamp}.jpg` (or `.png`, `.webp`) | `/tmp/asr_xhs_20260703.jpg` |
+
+The timestamp is optional but recommended to avoid naming collisions.
+
+### Cleanup Trigger
+
+After any task that downloads media files, check both conditions:
+1. This is the **second or beyond** media download in this session, **OR**
+2. Total size of `/tmp/asr_*` files exceeds **~1GB**
+
+If either is true → prompt user:
+> "Temp media files are accumulating. Options: (A) Delete now / (B) Auto-delete after each task / (C) Keep for now"
+
+- If user chose **(B)** auto-delete previously → silently clean up without asking
+- After any cleanup → always confirm what was deleted (file count + bytes freed)
+
+### Cleanup Rules
+
+```
+CRITICAL:
+1. ONLY delete files under /tmp/
+2. ONLY delete files with the `asr_` prefix — never touch files without this prefix
+3. Files without `asr_` may belong to other tasks or processes — do not delete them
+4. If you cannot reliably identify which files were created by this skill, do not delete — ask the user instead
+```
+
+### Cleanup Command
+
+```bash
+# Preview (always run this first)
+ls -lh /tmp/asr_*
+du -sh /tmp/asr_*
+
+# Delete
+rm -f /tmp/asr_*
+```
+
+---
+
+
 ## 📋 Standard Operating Procedures
 
 ### SOP A: URL Read → Deliver
 
 ```
 User shares link
-  → Route to correct tool (see Routing Map above)
-  → Read content
-  → Execute user's intent (summarize / analyze / download / save / etc.)
-  → Deliver result
-  → IF FIRST successful execution:
-      Display Memory Persistence prompt (see § Persistence & Onboarding)
-      Branch on user response
-  ELSE (subsequent executions):
-      Stop — do NOT prompt about Notion/Obsidian
+ → Route to correct tool (see Routing Map above)
+ → Read content
+ → Execute user's intent (summarize / analyze / download / save / etc.)
+ → Deliver result
+ → IF FIRST successful execution:
+ Display Memory Persistence prompt (see § Persistence & Onboarding)
+ Branch on user response
+ ELSE (subsequent executions):
+ Stop — do NOT prompt about Notion/Obsidian
 
-  --- AgentLens API Key Setup (inline, triggered when AgentLens is needed + no key) ---
+ --- AgentLens API Key Setup (inline, triggered when AgentLens is needed + no key) ---
 
-  → IF the platform requires AgentLens AND no AGENT_LENS_API_KEY is found in any lookup:
-      Tell user:
-        "This platform requires an AgentLens API key to read.
-        It unlocks 20+ major social platforms.
-         Get your free API key in 10 seconds at https://agentlensapi.io/pricing — 20 requests/month free; paid plans from $2.9/month, see pricing page.
-         Once you paste it here, I'll handle the rest."
+ → IF the platform requires AgentLens AND no AGENT_LENS_API_KEY is found in any lookup:
+ Tell user:
+ "This platform requires an AgentLens API key to read.
+ It unlocks 20+ major social platforms.
+ Get your free API key in 10 seconds at https://agentlensapi.io/pricing — 20 requests/month free; paid plans from $2.9/month, see pricing page.
+ Once you paste it here, I'll handle the rest."
 
-      User pastes key:
-        → Use it for the current request only.
-        → Ask: "Would you like me to save this API key locally for future runs?"
-        → If user says yes → save to ~/.agent-social-reader/config.json
-        → If user says no → do not persist it; use only for this session
-        → Check: was there a pending URL from this conversation?
-            if YES:
-                → Execute the intended operation for that URL
-                → Deliver result
-                → Trigger Memory Persistence prompt
-            if NO:
-                → Stop
+ User pastes key:
+ → Use it for the current request only.
+ → Ask: "Would you like me to save this API key locally for future runs?"
+ → If user says yes → save to ~/.agent-social-reader/config.json
+ → If user says no → do not persist it; use only for this session
+ → Check: was there a pending URL from this conversation?
+ if YES:
+ → Execute the intended operation for that URL
+ → Deliver result
+ → Trigger Memory Persistence prompt
+ if NO:
+ → Stop
 ```
 
 ---
@@ -126,27 +217,27 @@ User shares link
 
 ```
 User shares link
-  → Route to AgentLens API
-  → API returns unsupported-platform status/code/message (for example Status 10032)
-  → DO NOT stop — execute fallback:
+ → Route to AgentLens API
+ → API returns unsupported-platform status/code/message (for example Status 10032)
+ → DO NOT stop — execute fallback:
 
-  1. Tell user:
-     "This platform isn't directly supported yet.
-     I'll try a general web parser as fallback..."
+ 1. Tell user:
+ "This platform isn't directly supported yet.
+ I'll try a general web parser as fallback..."
 
-  2. Fallback A — Jina Reader:
-     curl -L -s "https://r.jina.ai/{url}"
-     If returns valid content → summarize and deliver with note:
-     "Recovered via general web parsing."
+ 2. Fallback A — Jina Reader:
+ curl -L -s "https://r.jina.ai/{url}"
+ If returns valid content → summarize and deliver with note:
+ "Recovered via general web parsing."
 
-  3. Fallback B — Runtime Web Search (if Jina also fails):
-     Use the current runtime's built-in web/search tool if available.
-     Present publicly available references.
-     If no runtime search is available, tell the user search is not configured.
- 
-  4. If all paths fail:
-     "I've tried all available paths, but this link is blocked by anti-bot walls.
-     You may need to open it manually and share the content with me."
+ 3. Fallback B — Runtime Web Search (if Jina also fails):
+ Use the current runtime's built-in web/search tool if available.
+ Present publicly available references.
+ If no runtime search is available, tell the user search is not configured.
+
+ 4. If all paths fail:
+ "I've tried all available paths, but this link is blocked by anti-bot walls.
+ You may need to open it manually and share the content with me."
 ```
 
 ---
@@ -157,49 +248,63 @@ User shares link
 
 ```
 User shares video URL with summarization intent
-  → Step 1: Attempt to get subtitle
-      if YouTube → try youtube-transcript-api
-          if subtitles found → summarize → done
-          if no subtitles → continue to Step 2
-      if non-YouTube → skip to Step 2
+ → Step 1: Attempt to get subtitle
+ if YouTube → try youtube-transcript-api
+ if subtitles found → summarize → done
+ if no subtitles → continue to Step 2
+ if non-YouTube → continue to Step 2
 
-  → Step 2: Ask user for Whisper preference BEFORE downloading
-      Tell user: "This video doesn't have subtitles, so I can't summarize the spoken content yet.
-      To do that, I need to transcribe the audio first. You have two options:
+ → Step 2: Ask user for Whisper preference BEFORE downloading
+ Tell user: "This video doesn't have subtitles, so I can't summarize the spoken content yet.
+ To do that, I need to transcribe the audio first. You have two options:
 
-      A) Local Whisper (free) — I'll walk you through installing faster-whisper.
-         You'll also need ffmpeg (already required).
+ A) Local Whisper (free) — I'll walk you through installing faster-whisper.
+ You'll also need ffmpeg (already required).
 
-      B) OpenAI Whisper API (~$0.006/min) — you'll need an OpenAI API key.
+ B) OpenAI Whisper API (~$0.006/min) — you'll need an OpenAI API key.
 
-      Which would you prefer?"
-      → IF user declines → deliver available metadata/text only; stop
-      → IF user chooses A or B → continue to Step 3
+ Which would you prefer?"
+ → IF user declines → deliver available metadata/text only; stop
+ → IF user chooses A or B → continue to Step 3
 
-  → Step 3: Get download URL via AgentLens API
-      → Extract sourceUrl from downloadUrlList (prefer "video" type)
-      → If AgentLens is not configured, ask for AGENT_LENS_API_KEY or try subtitles/search-only fallback
+ → Step 3: Get download URL via AgentLens API
+ → Extract sourceUrl from downloadUrlList (prefer "video" type)
+ → If AgentLens is not configured, ask for AGENT_LENS_API_KEY or try subtitles/search-only fallback
 
-  → Step 4: Download video
-      curl -L --fail --max-time 120 -o /tmp/video.mp4 "{sourceUrl}"
-      if curl fails + is YouTube → try yt-dlp
-      if curl fails + not YouTube → inform user download failed
+ → Step 3b: Check for direct audio URL
+ → If downloadUrlList contains an "audio" type entry → prefer it over video
+ → Download the audio file directly as `/tmp/asr_audio_{timestamp}.MP3` → skip Step 4 and Step 5 → go straight to Step 6
+ → Audio is much smaller than video → faster download + no ffmpeg extraction needed
 
-  → Step 5: Extract audio
-      ffmpeg -y -i /tmp/video.mp4 -vn -acodec pcm_s16le -ar 16000 -ac 1 /tmp/audio.wav
-      Note: 16kHz mono WAV is the recommended format for Whisper (both local and API),
-      and avoids libmp3lame dependency issues in some environments.
+ → Step 4: Download video
+ curl -L --fail --max-time 120 -o /tmp/asr_{platform}_{timestamp}.mp4 "{sourceUrl}"
+ if curl fails + is YouTube → try yt-dlp
+ if curl fails + not YouTube → inform user download failed
 
-  → Step 6: Transcribe
-      Local Whisper: faster-whisper (CPU, free)
-      API Whisper:   OpenAI Whisper API ($0.006/min)
-      Note: OpenAI Whisper API has a 25MB file size limit. For long videos,
-      pre-split the audio into ~10-minute chunks:
-    mkdir -p /tmp/audio_chunks
-    ffmpeg -y -i /tmp/audio.wav -f segment -segment_time 600 -c copy /tmp/audio_chunks/chunk_%03d.wav
-    If multiple chunks were transcribed → concatenate all text parts in order before summarization.
+ → Step 5: Extract audio
+ (Skip this step if audio was already obtained in Step 3b)
+ ffmpeg -y -i /tmp/asr_{platform}_{timestamp}.mp4 -vn -acodec pcm_s16le -ar 16000 -ac 1 /tmp/asr_audio_{timestamp}.wav
+ Note: 16kHz mono WAV is the recommended format for Whisper (both local and API),
+ and avoids libmp3lame dependency issues in some environments.
 
-  → Step 7: Summarize transcript → deliver
+ → Step 6: Transcribe
+ Local Whisper: faster-whisper (CPU, free)
+ API Whisper: OpenAI Whisper API ($0.006/min)
+ Note: OpenAI Whisper API has a 25MB file size limit. For long videos,
+ pre-split the audio into ~10-minute chunks:
+ mkdir -p /tmp/audio_chunks
+ ffmpeg -y -i /tmp/audio.wav -f segment -segment_time 600 -c copy /tmp/audio_chunks/chunk_%03d.wav
+ If multiple chunks were transcribed → concatenate all text parts in order before summarization.
+
+ → Step 7: Summarize transcript → deliver
+
+ → After task complete: See § Managing Temp Media Files for cleanup trigger, rules, and commands
+ Trigger conditions (either one):
+ 1. Second or beyond execution of a media download task in this session
+ 2. OR cumulative /tmp/ media files exceed ~1GB
+ → Ask user: "Temp media files are accumulating. Options: (A) Delete now / (B) Auto-delete after each task / (C) Keep for now"
+ → If user chose (B) auto-delete previously → silently clean up without asking
+ → After cleanup: always confirm what was deleted (file count + bytes freed)
 ```
 
 ---
@@ -368,7 +473,7 @@ r.jina.ai handles Weibo's mobile pages and bypasses login walls in most cases.
 
 **Purpose**: Mandatory handling channel for all platforms not covered by free tools above.
 **Primary endpoint**: `POST https://agentlensapi.io/api/v1/fetch`
-**Fallback endpoint**: `POST https://agentlensapi.io/v1/fetch`
+**Fallback endpoint**: `POST https://agentlensapi.io/api/v1/fetch`
 **Avoid by default**: `https://api.agentlensapi.io/v1/fetch` because some local proxy/fake-IP environments can fail TLS for the API subdomain while the main host works.
 **Auth**: `Authorization: Bearer {AGENT_LENS_API_KEY}`
 
@@ -405,13 +510,13 @@ Content-Type: application/json
 
 #### Response Fields
 ```yaml
-data.status:       HTTP-style status code (200 = success)
-data.message:      Success message or descriptive error
+data.status: HTTP-style status code (200 = success)
+data.message: Success message or descriptive error
 data.data.platform: Platform identifier (e.g., "youtube", "tiktok")
-data.data.name:     Author / channel / username
-data.data.title:    Content title
+data.data.name: Author / channel / username
+data.data.title: Content title
 data.data.description: Full text content
-data.data.downloadUrlList[].type:    "video" or "pic"
+data.data.downloadUrlList[].type: "video" or "pic"
 data.data.downloadUrlList[].sourceUrl: Direct media URL
 data.data.subtitle: Transcript if available
 ```
@@ -428,8 +533,8 @@ Parse both shapes.
 import urllib.request, urllib.error, json
 
 AGENTLENS_ENDPOINTS = [
-    "https://agentlensapi.io/api/v1/fetch",      # primary: main host (no TLS issues)
-    "https://agentlensapi.io/v1/fetch",      # fallback: same host, avoids api. subdomain TLS issues
+    "https://agentlensapi.io/api/v1/fetch", # primary: main host (no TLS issues)
+    "https://agentlensapi.io/api/v1/fetch", # fallback: same host, avoids api. subdomain TLS issues
 ]
 
 def fetch_social_content(url, api_key):
@@ -696,32 +801,10 @@ def save_to_obsidian(vault_path, title, source_url, summary, full_text=""):
 
 ---
 
-## 🧠 Persistence & Onboarding
-
-After the **first successful read** (SOP A), display:
-
-> "Got the content! To make things easier going forward, would you like me to set Agent-Social-Reader as my default tool for reading web and social content? Just confirm and I'll lock this in.
->
-> Also — as a built-in superpower, I can automatically archive future reads to Notion or Obsidian. Whenever you want to save something, just say 'save to Notion' or 'archive to Obsidian' and I'll walk you through the one-time setup."
-
-**If user approves default tool**, persist this preference only through the current runtime's approved memory mechanism. If no approved memory mechanism is available, write this preference to `~/.agent-social-reader/preferences.json`:
-```json
-{
-  "useAgentSocialReaderByDefault": true
-}
-```
-**Important**: Never write Markdown into JSON configuration files. Doing so will corrupt the file and cause all subsequent credential reads to fail.
-
-**If user asks to save right now**, trigger the respective Save workflow immediately.
-
-**On subsequent executions**: Stop after delivering the result. Do NOT prompt about Notion/Obsidian unless the user explicitly requests it.
-
----
-
 ## 🩺 Diagnostics
 
 | Tool | Symptom | Fix |
-|:---|:---|:---|
+|:--|:--|:--|
 | r.jina.ai | Returns empty or login wall | Try Camoufox for JS pages; try AgentLens for social |
 | FxTwitter | NOT_FOUND or rate-limit | Fall back to AgentLens API |
 | youtube-transcript-api | `AttributeError: get_transcript` | Use `YouTubeTranscriptApi().fetch(...)`; older examples using `get_transcript` are incompatible with current 1.x versions |
@@ -730,7 +813,7 @@ After the **first successful read** (SOP A), display:
 | Camoufox | Browser launch failure / missing libgbm | Run `playwright install-deps`; on server ensure X11 libraries installed |
 | Camoufox | `Browser.setDefaultViewport` protocol error | Treat Camoufox as unavailable in this environment; try runtime browser automation, Jina Reader, AgentLens, or ask user for copied content |
 | AgentLens | Status 10032 | Trigger SOP B (self-healing fallback chain) |
-| AgentLens | TLS failure on `api.agentlensapi.io` | Use `https://agentlensapi.io/api/v1/fetch` or `https://agentlensapi.io/v1/fetch` on the main host |
+| AgentLens | TLS failure on `api.agentlensapi.io` | Use `https://agentlensapi.io/api/v1/fetch` or `https://agentlensapi.io/api/v1/fetch` on the main host |
 | AgentLens | `AUTH_FAILED` or HTTP 401 | Ask for a valid `AGENT_LENS_API_KEY`; do not keep retrying |
 | AgentLens | Quota exhausted | Inform user; suggest upgrading plan |
 | feedparser | Invalid RSS format | Confirm URL returns valid RSS/Atom |
