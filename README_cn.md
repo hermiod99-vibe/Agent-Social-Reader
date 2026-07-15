@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>丢个社媒链接  →  Agent自动总结  →  一键存进知识库<br/>免登录 · 免 Cookie · 账号更安心<br/><br/>
-  支持读取 X、Instagram、YouTube、抖音、小红书、微信公众号等社交内容，并一键归档到 Notion / Obsidian</strong>
+  支持读取 X、Instagram、YouTube、抖音、小红书、微信公众号等社交内容，并一键归档到 Notion / Obsidian / ima</strong>
 </p>
 <p align="center">
   <a href="#-快速理解">快速理解</a> · 
@@ -36,7 +36,7 @@ Agent："我访问不了" / 返回乱码
 ```
 你：丢给 Agent 任何社交媒体链接 
 Agent：自动读取 → 自动总结 
-你：把它存到 Notion
+你：把它存到 Notion / Obsidian / ima
 → 内容整整齐齐存进知识库
 ```
 
@@ -69,6 +69,7 @@ Agent：自动读取 → 自动总结
 | 全网语义搜索                         | Agent runtime 内置搜索   | ✅ 免费（前提是当前运行时支持）                         |
 | 一句话存 Notion                 | Agent 确认后写入         | ✅ 免费（你的 Notion Token）                         |
 | 一句话存 Obsidian                   | Agent 确认后写入         | ✅ 免费（本地路径）                                  |
+| 一句话存 ima                       | Agent 确认后写入         | ✅ 免费（ima OpenAPI，可在微信/飞书/企业微信中访问）        |
 
 ---
 
@@ -103,7 +104,7 @@ Agent：自动读取 → 自动总结
 
 ### 第一步：安装 Skill（10 秒）
 
-复制下面这句话，直接发给你正在使用的 AI Agent（Claude Code、Cursor、Codex、OpenClaw、Windsurf 等均可）：
+复制下面这句话，直接发给你正在使用的 AI Agent（Claude Code、Cursor、Codex、OpenClaw、Hermes Agent、WorkBuddy 等均可）：
 
 ```
 帮我安装 Agent-Social-Reader 技能包：https://github.com/hermiod99-vibe/Agent-Social-Reader
@@ -169,13 +170,24 @@ pip install faster-whisper
 
 ------
 
-#### 📁 连接知识库（Notion / Obsidian）
+#### 📁 连接知识库（Notion / Obsidian / ima）
 
-当你第一次说"存到 Notion"或"存到 Obsidian"时，Agent 会引导你完成一次性配置：
+当你第一次说"存到 Notion"、"存到 Obsidian"或"存到 ima"时，Agent 会引导你完成一次性配置：
 
 - **Notion**：需要 Integration Token 和 Database ID 或 Page ID（凭据存本地，端到端直连）
   💡 默认写入使用 Name（标题）和 Source（URL）属性；如数据库属性名不同或想写入单个页面而非数据库，首次保存时请告知 Agent
-- Obsidian：需要本地知识库路径
+- **Obsidian**：需要本地知识库路径
+- **ima**：需要 Client ID + API Key（在 ima.qq.com/agent-interface 扫码获取）；ima 是腾讯知识库产品，可在微信、飞书、企业微信中访问
+
+**ima 支持三种接入场景：**
+
+| 场景 | 说明 |
+| :--- | :--- |
+| 直接在 ima 内使用 | 零配置，直接调用内置 ima skills |
+| 在 WorkBuddy 中使用 | 一次性配置 Client ID + API Key |
+| 在其他 Agent 中使用（OpenClaw / Claude Code 等） | 一次性配置 Client ID + API Key + Knowledge Base ID |
+
+对于抖音、小红书、X 等社交链接，推荐使用 Markdown 上传：即使原链接失效，正文和总结仍会保存在知识库里。普通网页则可以直接用 URL 导入。
 
 在同一运行环境中配置一次，之后通常无需重复配置。
 
@@ -191,16 +203,18 @@ pip install faster-whisper
 
 - "帮我看看这篇推特写了啥"
 - "把这个存到 Notion"
+- "把这个存到 Obsidian"
+- "把这个存到 ima"
 
-Agent 会自动调用相应工具，不需要每次都提 Skill 名字。如需保存到 Notion，直接说「存到 Notion」即可。
+Agent 会自动调用相应工具，不需要每次都提 Skill 名字。如需保存到 Notion、Obsidian 或 ima，直接说「存到 Notion」「存到 Obsidian」或「存到 ima」即可。
 
 ## 👍🏻 我的日常使用流程
 
 ```
-我分享链接 → Agent 读取 → Agent 总结 → 我说"把它存到Notion里" → Notion 里就有了
+我分享链接 → Agent 读取 → Agent 总结 → 我说"把它存到 Notion / Obsidian / ima 里" → 知识库里就有了
 ```
 
-存进 Notion/Obsidian 的内容包括：
+存进 Notion/Obsidian/ima 的内容包括：
 
 - 原始链接
 - 完整正文
@@ -223,7 +237,7 @@ Agent 会自动调用相应工具，不需要每次都提 Skill 名字。如需�
 - ✅ 微信公众号（Camoufox）
 - ✅ RSS 订阅（feedparser）
 - ✅ 全网搜索（Agent runtime 内置搜索）
-- ✅ Notion/Obsidian 存档
+- ✅ Notion/Obsidian/ima 存档
 - ✅ 本地 Whisper 视频转录（需自己安装）
 
 ### 可选付费功能
@@ -299,7 +313,7 @@ Agent 会自动调用相应工具，不需要每次都提 Skill 名字。如需�
 
 ### 存档层（完全免费）
 
-Notion 和 Obsidian 均免费。需要时只需对 Agent 说"存 Notion"或"存 Obsidian"，Agent 会引导你完成一次性配置，之后当你再次要求保存时，可直接自动写入，无需重复配置。
+Notion、Obsidian 和 ima 均免费。需要时只需对 Agent 说"存 Notion"、"存 Obsidian"或"存 ima"，Agent 会引导你完成一次性配置，之后当你再次要求保存时，可直接自动写入，无需重复配置。
 
 存档内容包括：
 
@@ -307,12 +321,14 @@ Notion 和 Obsidian 均免费。需要时只需对 Agent 说"存 Notion"或"存 
 - 完整正文
 - AI 总结
 
+ima 是腾讯知识库产品：配置后，归档内容可在微信、飞书、企业微信中访问。对于社交链接，推荐保存为 Markdown 内容，这样不会依赖原始链接后续是否还能访问。
+
 ------
 
 ## 🔒 安全与隐私
 
 - 账号更安全（无需登录）：市面上不少方案需要你安装插件或导出 Cookie 才能实现内容获取。本 Skill 完全不需要你登录任何个人社交账号或提供 Cookie，从而降低因使用个人账号 Cookie 带来的封号风险。
-- 端到端直连：无论是你的 Notion Token、Obsidian 本地路径，还是 AgentLens 的 API KEY，全部由你的 Agent 严格存储在你自己电脑的本地文件（~/.agent-social-reader/config.json 或本地环境变量）中。在发起请求时，Agent 直接从当前运行环境调用各服务方 API，凭据仅发送给对应服务方；第三方服务的数据处理以其官方隐私政策为准。
+- 端到端直连：无论是你的 Notion Token、Obsidian 本地路径、ima Client ID + API Key，还是 AgentLens 的 API KEY，全部由你的 Agent 严格存储在你自己电脑的本地文件（~/.agent-social-reader/config.json 或本地环境变量）中。在发起请求时，Agent 直接从当前运行环境调用各服务方 API，凭据仅发送给对应服务方；第三方服务的数据处理以其官方隐私政策为准。
 
 ------
 
@@ -336,6 +352,7 @@ Notion 和 Obsidian 均免费。需要时只需对 Agent 说"存 Notion"或"存 
 **第三方可选增强 API（用户按需选择）：**
 - [AgentLens API](https://agentlensapi.io) - 20+ 社交媒体平台公开内容标准化统一入口
 - [OpenAI Whisper API](https://platform.openai.com/docs/guides/speech-to-text) - 远程音视频高精度转录
+- [ima OpenAPI](https://ima.qq.com/agent-interface) - 腾讯知识库写入与归档
 
 **本地处理方案（完全免费）：**
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper) - 本地运行的 Whisper 语音转文字引擎
