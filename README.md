@@ -1,8 +1,8 @@
 # 👁️ Agent-Social-Reader
 
 <p align="center">
- <strong>Drop a social link → Get a summary → Save it to your Notion / Obsidian<br/> No login. No cookies. No account risk.<br/> <br/>
- Reading social content from X, Tiktok, Instagram, YouTube, Reddit, and more</strong>
+ <strong>Drop a social link → AI summarizes → Save it to Notion / Obsidian / ima<br/> No login. No cookies. No account risk.<br/><br/>
+Reads content from X, Instagram, YouTube, Xiaohongshu, and more — archives to your personal knowledge base</strong>
 </p>
 <p align="center">
  <a href="#-quick-overview">Quick Overview</a> ·
@@ -11,8 +11,6 @@
  <a href="#-quick-start">Quick Start</a> ·
  <a href="README_cn.md">中文</a>
 </p>
-
-
 
 
 ---
@@ -36,14 +34,14 @@ You: resort to manual copy-paste, screenshots, or give up
 ```
 You: drop any social media link into your agent
 Agent: reads automatically → summarizes automatically
-You: save it to Notion
+You: save it to Notion / Obsidian / ima
 → content neatly filed in your knowledge base
 ```
 
 **Core value**:
 - ✅ **Complete loop**: Read → Summarize → Archive — end-to-end in one workflow
 - ✅ **Broad coverage**: 20+ global social platforms (TikTok, Instagram, X, YouTube, Reddit, Douyin, Xiaohongshu, Bilibili...)
-- ✅ **Reduced account risk**: No need to log in to personal social accounts, no cookie required — reduces risk of suspension from cookie-based access
+- ✅ **Lower account risk**: No need to log in to personal social accounts, no cookie required — reduces risk of suspension from cookie-based access
 - ✅ **Flexible cost**: Free tools first; optional paid enhancements from $2.90/month
 
 > 💡 **Design philosophy**: Use free tools wherever possible; reach for the most cost-effective paid option only when free tools won't do. You decide which tier to use.
@@ -62,13 +60,14 @@ After installing this Skill, your agent gains the following capabilities (no cod
 | Public X/Twitter posts | FxTwitter API | ✅ Free, no API key or cookie required |
 | YouTube (with subtitles) | youtube-transcript-api | ✅ Free, no API key required |
 | Weibo | Jina Reader (r.jina.ai) | ✅ Free, bypasses login wall |
-| WeChat public accounts | Camoufox | ✅ Free, headless browser handles JS rendering<br/> (falls back to AgentLens or prompts you to paste text if it fails) |
+| WeChat public accounts | Camoufox | ✅ Free, headless browser handles JS rendering<br/>(falls back to AgentLens or prompts you to paste text if it fails) |
 | **20+ global social platforms** | AgentLens API | 🎁 20 free requests per month<br>💵 Then $2.90/month (200 requests) |
 | Video summarization (TikTok, YouTube and other videos without subtitles) | Whisper transcription + LLM | ✅ Free locally (requires setup)<br>💵 OpenAI API $0.006/minute |
 | RSS feeds | Python feedparser | ✅ Free |
 | Full-web semantic search | Agent runtime built-in search | ✅ Free (provided your current runtime supports it) |
 | Save to Notion upon request | Agent writes after confirmation | ✅ Free (your Notion Token) |
 | Save to Obsidian upon request | Agent writes after confirmation | ✅ Free (local path) |
+| Save to ima upon request | Agent writes after confirmation | ✅ Free (ima OpenAPI, accessible from WeChat/Feishu/WeCom) |
 
 ---
 
@@ -93,7 +92,7 @@ Via **AgentLens API**, the following social media platforms are accessible and v
 | Kick (clips) | |
 | Lemon8 | |
 
-* **AgentLens reads**: main text content + images/video files (original media links)  
+* **AgentLens reads**: main text content + images/video files (original media links)
 * **AgentLens does not read**: comments, timelines, X Lists, private account content, or reply/conversation threads on X and Reddit
 
 ---
@@ -102,7 +101,7 @@ Via **AgentLens API**, the following social media platforms are accessible and v
 
 ### Step 1: Install the Skill (10 seconds)
 
-Copy and paste this into whichever AI agent you're using (Claude Code, Cursor, Codex, OpenClaw, Windsurf, etc.):
+Copy and paste this into whichever AI agent you're using (Claude Code, Cursor, Codex, OpenClaw, Hermes Agent, WorkBuddy, etc.):
 
 ```
 Install the Agent-Social-Reader Skill: https://github.com/hermiod99-vibe/Agent-Social-Reader
@@ -168,15 +167,26 @@ If your current agent supports preference memory and you confirm, your agent can
 
 ---
 
-#### 📁 Connect your knowledge base (Notion / Obsidian)
+#### 📁 Connect your knowledge base (Notion / Obsidian / ima)
 
-The first time you say "save to Notion" or "save to Obsidian", your agent walks you through a one-time setup:
+The first time you say "save to Notion", "save to Obsidian", or "save to ima", your agent walks you through a one-time setup:
 
 - **Notion**: requires an Integration Token and a Database ID or Page ID (credentials stored locally; direct end-to-end connection)
   💡 The default save script assumes your Notion database has a Title property named **Name** and a URL property named **Source**. If your database uses different property names or you want to save to a single page instead of a database, let your agent know during the first save.
 - **Obsidian**: requires your local vault path
+- **ima**: requires Client ID + API Key (scan QR code at ima.qq.com/agent-interface); ima is Tencent's knowledge base product, accessible from WeChat, Feishu, and WeCom
 
-Set up once; it runs automatically going forward upon your request.
+**ima — three access scenarios:**
+
+| Scenario | Description |
+|:---------|:-----------|
+| Running inside ima directly | Zero config; use built-in ima skills |
+| Running in WorkBuddy | One-time setup: Client ID + API Key |
+| Running in another Agent (OpenClaw / Claude Code etc.) | One-time setup: Client ID + API Key + Knowledge Base ID |
+
+For social links (Douyin/Xiaohongshu/X etc.), Markdown upload is recommended — content persists even if the original link goes dead. For regular web pages, URL import works fine.
+
+Once configured in the same runtime environment, setup is typically one-time only.
 
 ---
 
@@ -190,8 +200,9 @@ Once you confirm, just speak naturally:
 
 - "Show me what this tweet says"
 - "Save this to Notion"
+- "Save this to ima"
 
-Your agent calls the right tool automatically. No need to specify the Skill name each time. Just say "save it to Notion" whenever you want to.
+Your agent calls the right tool automatically. No need to specify the Skill name each time. Just say "save it to Notion" whenever you want.
 
 ## 👍🏻 My Daily Workflow
 
@@ -199,7 +210,7 @@ Your agent calls the right tool automatically. No need to specify the Skill name
 I share a link → Agent reads → Agent summarizes → I say "save to Notion" → it's in Notion
 ```
 
-Content saved to Notion/Obsidian includes:
+Content saved to Notion/Obsidian/ima includes:
 
 - Original link
 - Full text
@@ -222,7 +233,7 @@ Per Skill marketplace guidelines, paid services require transparent pricing disc
 - ✅ WeChat public accounts (Camoufox)
 - ✅ RSS feeds (feedparser)
 - ✅ Full-web search (Agent runtime built-in search)
-- ✅ Notion/Obsidian archiving
+- ✅ Notion/Obsidian/ima archiving
 - ✅ Local Whisper video transcription (requires your own installation)
 
 ### Optional paid features
@@ -240,7 +251,7 @@ Full pricing: [agentlensapi.io/pricing](https://agentlensapi.io/pricing)
 
 Why AgentLens (from my own experience):
 
-- One Key for 20+ platforms (vs one tool per platform)
+- One API key for 20+ platforms (vs one tool per platform)
 - No cookie required (vs risking account suspension)
 - No proxy required (vs maintaining your own IP pool)
 - Stable maintenance (vs tracking platform rule changes yourself)
@@ -298,7 +309,7 @@ The underlying layer never requires you to log into any personal social account,
 
 ### Archive layer (completely free)
 
-Both Notion and Obsidian are free. Just tell your agent "save to Notion" or "save to Obsidian" — it walks you through one-time setup. After that, just ask again whenever you want to save, and it writes automatically with no need to reconfigure..
+Notion, Obsidian, and ima are all free. Just tell your agent "save to Notion", "save to Obsidian", or "save to ima" — it walks you through one-time setup. After that, just ask again whenever you want to save, and it writes automatically with no need to reconfigure.
 
 Archived content includes:
 
@@ -306,12 +317,14 @@ Archived content includes:
 - Full text
 - AI summary
 
+ima is Tencent's knowledge base product: once configured, your archive is accessible across WeChat, Feishu, and WeCom. For social links, Markdown upload is recommended — content is saved directly and doesn't depend on the original link remaining accessible.
+
 ---
 
 ## 🔒 Security & Privacy
 
-- **Account safety (no login required)**: Many solutions require browser extensions or cookie exports to fetch content. This Skill never asks you to log into any personal social account or provide a cookie. Therefore, reducing the risk of suspension from cookie-based access.
-- **End-to-end direct connection**: Whether it's your Notion Token, Obsidian local path, or AgentLens API Key — all credentials are strictly stored by your agent in a local file on your own machine (`~/.agent-social-reader/config.json` or environment variables). When making requests, your agent calls each service's API (Notion, OpenAI, AgentLens, and any other configured service) directly from the current runtime environment — credentials are sent only to the corresponding service. Third-party services process data according to their own privacy policies.
+- **Account safety (no login required)**: Many solutions require browser extensions or cookie exports to fetch content. This Skill never asks you to log into any personal social account or provide a cookie, which reduces the risk of suspension from cookie-based access.
+- **End-to-end direct connection**: Whether it's your Notion Token, Obsidian local path, or ima Client ID + API Key — all credentials are strictly stored by your agent in a local file on your own machine (`~/.agent-social-reader/config.json` or environment variables). When making requests, your agent calls each service's API (Notion, OpenAI, AgentLens, ima, and any other configured service) directly from the current runtime environment — credentials are sent only to the corresponding service. Third-party services process data according to their own privacy policies.
 
 ---
 
@@ -343,11 +356,11 @@ Archived content includes:
 
 ## 🙏 Final Words
 
-This is my first time publishing a Skill publicly. 
+This is the first time I've published a Skill publicly.
 
-If something doesn't work, open an issue and I'll fix it right away. 
+If something doesn't work, open an issue and I'll fix it right away.
 
-If I find a new tool or solution, I'll add it right away. 
+If I find a new tool or solution, I'll add it right away.
 
 If you want a platform added, submit a PR.
 
